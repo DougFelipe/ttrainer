@@ -9,7 +9,6 @@ stages:
   - lint       # Verifica estilo e qualidade do código
   - test       # Executa os testes automatizados com cobertura
   - build      # Gera o build de produção com Vite
-  - docker     # Constrói a imagem Docker (com tag temporária)
   - deploy     # Faz o push da imagem para o GitLab Container Registry
 
 
