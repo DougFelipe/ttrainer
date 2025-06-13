@@ -1,7 +1,10 @@
 stages:
-  - lint      # Verifica estilo e qualidade do código
-  - test      # Executa os testes automatizados com cobertura
-  - build     # Gera o build de produção com Vite
+  - lint       # Verifica estilo e qualidade do código
+  - test       # Executa os testes automatizados com cobertura
+  - build      # Gera o build de produção com Vite
+  - docker     # Constrói a imagem Docker (com tag temporária)
+  - deploy     # Faz o push da imagem para o GitLab Container Registry
+
 
 # Imagem base para todos os jobs (Node.js 20)
 default:
@@ -56,3 +59,40 @@ build:
       - dist/                    # Salva a pasta dist como artefato
   rules:
     - if: '$CI_PIPELINE_SOURCE == "push" || $CI_MERGE_REQUEST_ID'
+
+##############################
+# 4. Build da imagem Docker
+##############################
+docker_build:
+  stage: docker
+  image: docker:latest
+  services:
+    - docker:dind
+  variables:
+    DOCKER_HOST: tcp://docker:2375/
+    DOCKER_TLS_CERTDIR: ""
+  script:
+    - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN registry.gitlab.com
+    - docker build -t registry.gitlab.com/$CI_PROJECT_PATH:temp-build .
+  dependencies:
+    - build
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+
+##############################
+# 5. Push para o Container Registry 
+##############################
+docker_push:
+  stage: deploy
+  image: docker:latest
+  services:
+    - docker:dind
+  variables:
+    DOCKER_HOST: tcp://docker:2375/
+    DOCKER_TLS_CERTDIR: ""
+  script:
+    - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN registry.gitlab.com
+    - docker push registry.gitlab.com/$CI_PROJECT_PATH:temp-build
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+
