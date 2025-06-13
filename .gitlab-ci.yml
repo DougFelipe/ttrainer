@@ -1,0 +1,56 @@
+stages:
+  - lint      # Verifica estilo e qualidade do código
+  - test      # Executa os testes automatizados com cobertura
+  - build     # Gera o build de produção com Vite
+
+# Imagem base para todos os jobs (Node.js 20)
+default:
+  image: node:20
+
+  # Cache por branch
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}
+    paths:
+      - node_modules/
+      - .vite/
+
+##############################
+# 1. Etapa de Linting (ESLint)
+##############################
+lint:
+  stage: lint
+  script:
+    - npm ci                     
+    - npm run lint              
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "push" || $CI_MERGE_REQUEST_ID'
+
+##############################
+# 2. Etapa de Testes (Vitest)
+##############################
+test:
+  stage: test
+  script:
+    - npm ci
+    - npm run test:coverage      # Executa testes com relatório de cobertura
+  artifacts:
+    paths:
+      - coverage/                # Salva a pasta com relatórios 
+    reports:
+      cobertura: coverage/cobertura-coverage.xml  # Habilita visualização no GitLab UI
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "push" || $CI_MERGE_REQUEST_ID'
+
+##############################
+# 3. Etapa de Build (Vite)
+##############################
+build:
+  stage: build
+  script:
+    - npm ci
+    - npm run build              # Gera a aplicação final em /dist
+  artifacts:
+    paths:
+      - dist/                    # Salva a pasta dist como artefato
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "push" || $CI_MERGE_REQUEST_ID'
