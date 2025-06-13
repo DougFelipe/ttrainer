@@ -32,12 +32,14 @@ test:
   stage: test
   script:
     - npm ci
-    - npm run test:coverage      # Executa testes com relatório de cobertura
+    - npm run test:coverage
   artifacts:
     paths:
-      - coverage/                # Salva a pasta com relatórios 
+      - coverage/
     reports:
-      cobertura: coverage/cobertura-coverage.xml  # Habilita visualização no GitLab UI
+      coverage_report:
+        coverage_format: cobertura
+        path: coverage/cobertura-coverage.xml
   rules:
     - if: '$CI_PIPELINE_SOURCE == "push" || $CI_MERGE_REQUEST_ID'
 
