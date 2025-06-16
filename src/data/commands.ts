@@ -27,9 +27,9 @@ const linuxCommands: CommandData[] = [
     tokens: [
       { inicio: 0, fim: 3, significado: "Comando para buscar texto em arquivos" },
       { inicio: 5, fim: 6, significado: "Flag recursiva (busca em subdiretórios)" },
-      { inicio: 8, fim: 15, significado: "Texto a ser buscado" },
+      { inicio: 8, fim: 16, significado: "Texto a ser buscado" },
       { inicio: 17, fim: 32, significado: "Filtro para incluir apenas arquivos JavaScript" },
-      { inicio: 34, fim: 34, significado: "Diretório atual (ponto)" }
+      { inicio: 34, fim: 35, significado: "Diretório atual (ponto)" }
     ],
     language: 'linux'
   },
@@ -51,8 +51,8 @@ const dockerfileCommands: CommandData[] = [
     comando: "FROM node:18-alpine AS builder",
     tokens: [
       { inicio: 0, fim: 3, significado: "Instrução para definir a imagem base" },
-      { inicio: 5, fim: 16, significado: "Imagem Node.js Alpine" },
-      { inicio: 18, fim: 25, significado: "Define um estágio de build" }
+      { inicio: 5, fim: 18, significado: "Imagem Node.js Alpine" },
+      { inicio: 19, fim: 29, significado: "Define um estágio de build" }
     ],
     language: 'dockerfile'
   },
