@@ -6,6 +6,74 @@ Um simulador de digitação interativo para comandos Linux e sintaxe Dockerfile,
 
 O Terminal Trainer é uma aplicação web que ajuda desenvolvedores a praticar a digitação de comandos técnicos com precisão e velocidade. A aplicação oferece uma interface similar a um terminal real, onde os usuários podem alternar entre diferentes linguagens de comando e receber feedback em tempo real sobre sua performance de digitação. 
 
+## Pipeline de CI/CD com GitLab
+
+Este projeto utiliza um pipeline de **Integração Contínua e Entrega Contínua (CI/CD)** definido no arquivo `.gitlab-ci.yml`, que automatiza desde a verificação do código até a publicação da imagem Docker no GitLab Container Registry.
+
+### Visão Geral das Etapas
+
+O pipeline está organizado nas seguintes fases:
+
+| Estágio | Descrição |
+|--------|-----------|
+| `lint` | Executa o ESLint para verificar problemas de estilo e qualidade no código. |
+| `test` | Executa os testes automatizados com `Vitest`, incluindo relatório de cobertura. |
+| `build` | Gera o build de produção da aplicação com `Vite`, salvando os artefatos em `/dist`. |
+| `deploy` | Realiza o build da imagem Docker e publica no GitLab Container Registry. |
+
+### Dockerfile Multi-Stage
+
+O `Dockerfile` utiliza duas etapas:
+
+1. **Builder**: Usa `node:20-alpine` para instalar dependências e gerar a build da aplicação (`npm run build`).
+2. **Runtime**: Usa `nginx:alpine` para servir os arquivos gerados (`/dist`) em produção.
+
+```Dockerfile
+FROM node:20-alpine as builder
+WORKDIR /app
+COPY . .
+RUN npm ci && npm run build
+
+FROM nginx:alpine
+COPY --from=builder /app/dist /usr/share/nginx/html
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]
+```
+
+### .dockerignore
+
+O arquivo `.dockerignore` impede que arquivos e diretórios desnecessários sejam incluídos no contexto do Docker build, otimizando tempo e espaço:
+
+```
+node_modules
+.git
+.gitlab
+.vscode
+coverage
+dist
+*.log
+*.tsbuildinfo
+```
+
+> O diretório `dist` **é gerado dentro da imagem Docker**, então não precisa estar presente localmente para o build funcionar.
+
+### Publicação da Imagem
+
+A imagem gerada é publicada com a tag `II-Unidade` em:
+
+```
+registry.gitlab.com/dougfelipe/ttrainer
+```
+
+Para testar localmente:
+
+```bash
+docker pull registry.gitlab.com/dougfelipe/ttrainer:II-Unidade
+docker run -p 8080:80 registry.gitlab.com/dougfelipe/ttrainer:II-Unidade
+```
+
+Abra no navegador: [http://localhost:8080](http://localhost:8080)
+
 ## ✨ Funcionalidades
 
 - **Dois modos de treinamento**: Comandos Linux e sintaxe Dockerfile
@@ -149,6 +217,3 @@ Este projeto está sob a licença MIT. Veja o arquivo `LICENSE` para mais detalh
 ## 🙏 Agradecimentos
 
 - Inspirado pelo [Monkeytype](https://monkeytype.com/)
---- 
-
-**Notes**
