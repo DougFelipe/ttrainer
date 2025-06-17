@@ -68,8 +68,8 @@ registry.gitlab.com/dougfelipe/ttrainer
 Para testar localmente:
 
 ```bash
-docker pull registry.gitlab.com/dougfelipe/ttrainer:II-Unidade
-docker run -p 8080:80 registry.gitlab.com/dougfelipe/ttrainer:II-Unidade
+docker pull registry.gitlab.com/dougfelipe/ttrainer:latest
+docker run -d --name ttrainer -p 8080:80 registry.gitlab.com/dougfelipe/ttrainer:latest
 ```
 
 Abra no navegador: [http://localhost:8080](http://localhost:8080)
